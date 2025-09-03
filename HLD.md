@@ -88,11 +88,123 @@ Authorization and administration of users across all systems
 | FR-USR-301 | At SoC Analyst login screen, the User Management system shall authorize the SoC Analyst for the Investigation Portal |
 | FR-USR-302 | When a SoC Analyst is authorized for the Investigation Portal above 5 minutes, the User Management system shall unauthorize the SoC Analyst |
 
-#### User Workflow
+### 2.2 User Workflow
 
+#### Authorzation Flow
 
+```mermaid
+flowchart LR
+    A[SoC Analyst accesses login screen] --> B[Enter credentials]
+    B --> C{Valid credentials?}
+    C -->|No| D[Display error] --> B
+    C -->|Yes| E[User Management authorizes]
+    E --> F[Redirect to Investigation Portal]
+    F --> G[Access dashboard]
+    G --> H[Session over 5 minutes?]
+    H -->|Yes| I[Auto logout] --> A
+    H -->|No| G
+```
 
-===== HERE ========================================
+#### Investigation Management Flow
+
+```mermaid
+flowchart LR
+    A[View alerts and NetFlow records on portal] --> C[Initialize and view investigations]
+    C --> E[Analyze evidence]
+    E --> F{Investigation complete?}
+    F -->|No| E
+    F -->|Yes| G[Conclude investigation]
+    G --> H{Select conclusion}
+    H --> I[Resolution]
+    H --> J[Insufficient Evidence]
+    H --> K[Other]
+    I --> L[Investigation closed]
+    J --> L
+    K --> L
+```
+
+## 2.3 Availability and Recovery
+
+| ID | Requirement |
+|----|-----------|
+| NFR-AVA-101 | The Investigation Portal shall be available 99.9% of the time |
+| NFR-AVA-102 | The Forensics API shall be available 99.9% of the time |
+| NFR-AVA-103 | The User Management system shall be available only from inside a private network |
+| NFR-AVA-104 | The Investigation portal system shall be available only from inside a private network |
+| NFR-AVA-105 | Investigations data older than 7 days shall be archived to a file server |
+| NFR-AVA-106 | Archived investigations data shall be restored from a file server within 45 minutes |
+
+## 2.4 Performance and Capacity
+
+| ID | Requirement |
+|----|-----------|
+| NFR-PFM-101 | The User Management system shall perform SoC Analyst registration, deactivation, and reactivation operations within 5 seconds |
+| NFR-PFM-102 | The User Management system shall complete SoC Analyst authorization and redirection, within 5 seconds |
+| NFR-PFM-201 | The Investigation Portal shall complete retrieval and rendering of alerts and investigations within 2 seconds |
+| NFR-PFM-202 | The Investigation Portal shall handle up to 10 concurrent requests for retrieval of alerts and investigations |
+| NFR-PFM-203 | The Threat Detection Engine shall scan files and emails, each of size up to 5GB |
+| NFR-CAP-301 | The User Management system shall support up to 50 active SoC Analysts |
+| NFR-CAP-302 | The Forensics Engine shall support data retention period of 3 months |
+| NFR-CAP-401 | For Small organizations, The Forensics Engine shall support up to 1Gbps IP traffic peak |
+| NFR-CAP-402 | For Medium organizations, The Forensics Engine shall support up to 5Gbps IP traffic peak |
+| NFR-CAP-403 | For XLarge organizations, The Forensics Engine shall support up to 50Gbps IP traffic peak |
+| NFR-CAP-401 | For Small organizations, The Threat Detection Engine shall support up to 200 devices endpoints |
+| NFR-CAP-402 | For Medium organizations, The Threat Detection Engine shall support up to 1000 devices endpoints |
+| NFR-CAP-403 | For XLarge organizations, The Threat Detection Engine shall support up to 10000 devices endpoints |
+
+## 2.5 Scalability
+
+| ID | Requirement |
+|----|-----------|
+| NFR-SCA-101 | The Compute Orchestrating system shall orchestrate containerized components |
+| NFR-SCA-102 | The Compute Orchestrating system shall be migratable to at least one of AWS, Azure, and GCP cloud providers |
+| NFR-SCA-103 | The Compute Orchestrating system shall auto-scale components as pre a predefined policy |
+| NFR-SCA-201 | The Compute Orchestrating system shall set up a queue for threats alerts |
+| NFR-SCA-202 | The Compute Orchestrating system shall set up a load balancer behind The Forensics API |
+
+## 2.6 Security
+
+| ID | Requirement |
+|----|-----------|
+| NFR-SEC-101 | The Compute Orchestrating system shall host all components within a logical private network |
+| NFR-SEC-102 | The User Management system shall apply OAuth 2.0 for authorization tasks |
+| NFR-SEC-103 | The User Management system shall apply Two-Factor authentication for authentication tasks |
+
+## 2.7 Monitoring
+
+| ID | Requirement |
+|----|-----------|
+| NFR-OBS-101 | When a component handles a synchronous message, the component shall log the request and response headers |
+| NFR-OBS-102 | When a component handles an asynchronous message, the component shall log the event metadata |
+| NFR-OBS-103 | When a component encounters an applicative error without stack trace, component shall log the error message |
+| NFR-OBS-104 | When a component encounters an applicative error with stack trace, component shall log the error message with the stack trace |
+| NFR-OBS-105 | When a auto-scaling policy is not fulfilled, the Compute Orchestrating system shall log the failure |
+| NFR-OBS-201 | The Logging system shall collect logs from all components |
+| NFR-OBS-202 | The Logging system shall provide logs querying |
+| NFR-OBS-301 | The Health system shall detect components failures of all components |
+| NFR-OBS-302 | When a system event fulfilling the health issue criteria is detected, the Health system shall alert the System Maintainer of the event |
+
+## 2.8 Usability
+
+| ID | Requirement |
+|----|-----------|
+| NFR-USA-101 | The Investigation portal shall provide a graphical user interface supported by all modern browsers |
+| NFR-USA-102 | The User Management system shall provide a graphical user interface supported by all modern browsers |
+| NFR-USA-103 | The Logging system shall provide a graphical user interface supported by all modern browsers |
+
+## 2.9 Maintainability and Configuration
+
+| ID | Requirement |
+|----|-----------|
+| NFR-MAN-101 | When a new version of source code is integrated, the Continuous Integration system shall detect source code vulnerabilities |
+| NFR-MAN-102 | When a new version of source code with unit tests is integrated, the Continuous Integration system shall run the unit tests |
+| NFR-CFG-101 | The Investigation Portal shall support a configurable number of detected in-file viruses to be displayed on the Soc Analyst analysis center |
+| NFR-CFG-102 | The Investigation Portal shall support a configurable number of detected in-file malwares to be displayed on the Soc Analyst analysis center |
+| NFR-CFG-103 | The Investigation Portal shall support a configurable number of detected malware C&C activities to be displayed on the Soc Analyst analysis center |
+| NFR-CFG-104 | The Automatic Cyber Investigator shall support a configurable number of seconds for incremental network traffic anomaly scan interval |
+
+## 3. High-Level Design
+### 3.1 System Architecture
 Investigation Portal
 User Management system
 Automatic Cyber Investigator
@@ -104,66 +216,3 @@ Forensics API
 Logging system
 Health system
 Continuous Integration system
-
-
-# Nonfunctional requirement
-
-## Configuration
-NFR-CFG-101 The Investigation Portal shall support a configurable number of detected in-file viruses to be displayed on the Soc Analyst analysis center
-NFR-CFG-102 The Investigation Portal shall support a configurable number of detected in-file malwares to be displayed on the Soc Analyst analysis center
-NFR-CFG-103 The Investigation Portal shall support a configurable number of detected malware C&C activities to be displayed on the Soc Analyst analysis center
-NFR-CFG-104 The Automatic Cyber Investigator shall support a configurable number of seconds for incremental network traffic anomaly scan interval
-
-## Quota
-NFR-QUT-101 The User Management system shall support up to 50 active SoC Analysts
-NFR-QUT-102 The Forensics Engine shall support data retention period of 3 months
-NFR-QUT-201 For Small organizations, The Forensics Engine shall support up to 1Gbps IP traffic peak
-NFR-QUT-202 For Medium organizations, The Forensics Engine shall support up to 5Gbps IP traffic peak
-NFR-QUT-203 For XLarge organizations, The Forensics Engine shall support up to 50Gbps IP traffic peak
-NFR-QUT-201 For Small organizations, The Threat Detection Engine shall support up to 200 devices endpoints
-NFR-QUT-202 For Medium organizations, The Threat Detection Engine shall support up to 1000 devices endpoints
-NFR-QUT-203 For XLarge organizations, The Threat Detection Engine shall support up to 10000 devices endpoints
-
-## Availability
-NFR-AVA-101 The Investigation Portal shall be available 99.9% of the time
-NFR-AVA-102 The Forensics API shall be available 99.9% of the time
-NFR-AVA-103 The User Management system shall be available only from inside a private network
-NFR-AVA-104 The Investigation portal system shall be available only from inside a private network
-
-## Performance
-NFR-PFM-101 The User Management system shall perform SoC Analyst registration, deactivation, and reactivation operations within 5 seconds
-NFR-PFM-102 The User Management system shall complete SoC Analyst authorization and redirection, within 5 seconds
-NFR-PFM-201 The Investigation Portal shall complete retrieval and rendering of alerts and investigations within 2 seconds
-NFR-PFM-201 The Threat Detection Engine shall scan files and emails, each of size up to 5GB
-
-## Scalability
-NFR-SCA-101 The Compute Orchestrating system shall orchestrate containerized components
-NFR-SCA-102 The Compute Orchestrating system shall be migratable to at least one of AWS, Azure, and GCP cloud providers
-NFR-SCA-103 The Compute Orchestrating system shall auto-scale components as pre a predefined policy
-NFR-SCA-201 The Compute Orchestrating system shall set up a queue for threats alerts
-NFR-SCA-201 The Compute Orchestrating system shall set up a load balancer behind The Forensics API
-
-## Usability
-NFR-USA-101 The Investigation portal shall provide a graphical user interface supported by all modern browsers
-NFR-USA-102 The User Management system shall provide a graphical user interface supported by all modern browsers
-NFR-USA-103 The Logging system shall provide a graphical user interface supported by all modern browsers
-
-# Security
-NFR-SEC-101 The Compute Orchestrating system shall host all components within a logical private network
-NFR-SEC-102 The User Management system shall apply OAuth 2.0 for authorization tasks
-NFR-SEC-103 The User Management system shall apply Two-Factor authentication for authentication tasks.
-
-# Observability
-NFR-OBS-101 When a component handles a synchronous message, the component shall log the request and response headers
-NFR-OBS-102 When a component handles an asynchronous message, the component shall log the event metadata
-NFR-OBS-103 When a component encounters an applicative error without stack trace, component shall log the error message
-NFR-OBS-104 When a component encounters an applicative error with stack trace, component shall log the error message with the stack trace
-NFR-OBS-105 When a auto-scaling policy is not fulfilled, the Compute Orchestrating system shall log the failure
-NFR-OBS-201 The Logging system shall collect logs from all components
-NFR-OBS-202 The Logging system shall provide logs querying
-NFR-OBS-301 The Health system shall detect components failures of all components
-NFR-OBS-302 When a system event fulfilling the health issue criteria is detected, the Health system shall alert the System Maintainer of the event
-
-## Maintainability
-NFR-MAN-101 When a new version of source code is integrated, the Continuous Integration system shall detect source code vulnerabilities
-NFR-MAN-102 When a new version of source code with unit tests is integrated, the Continuous Integration system shall run the unit tests
