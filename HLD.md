@@ -160,6 +160,7 @@ flowchart LR
 | NFR-SEC-101 | The Compute Orchestrating system shall host all components within a logical private network |
 | NFR-SEC-102 | The User Management system shall apply OAuth 2.0 for authorization tasks |
 | NFR-SEC-103 | The User Management system shall apply Two-Factor authentication for authentication tasks |
+| NFR-SEC-104 | The User Management system shall encrypt users secrets at-rest |
 
 ### 2.7 Monitoring
 
@@ -196,14 +197,93 @@ flowchart LR
 
 ## 3. High-Level Design
 ### 3.1 System Architecture
-Investigation Portal
-User Management system
-Automatic Cyber Investigator
-Threat Detection Engine
-Forensics Engine
+![CyberFort Nexus HLD architecture diagram](http://guysigner.name/cyberfort-nexus-hld-diagram.png)
 
-Compute Orchestrating system
-Forensics API
-Logging system
-Health system
-Continuous Integration system
+* The Compute Orchestration system is responsible for defining and running the deployment and installation of all components' containers.
+* The Continuous Integration system is responsible for software development life cycle regulation
+
+### 3.2 Processes
+
+Below are major processes, as inferred from the requirements.
+
+### View Network Forensics
+
+```mermaid
+sequenceDiagram
+    participant GW as Gateway Switch
+    participant P as Probe
+    participant NF as Network Forensics
+    participant SA as SoC Analyst
+    participant IP as Investigation Portal (UI)
+    participant AG as API Gateway
+    participant C as Cache
+
+    GW->>P: Mirror traffic (async)
+    P->>NF: Consume traffic
+    SA->>IP: Request NetFlow records
+    IP->>AG: Send query request
+    AG->>C: Check cache
+    alt Cache hit
+        C-->>AG: Return cached data
+    else Cache miss
+        AG->>NF: Query NetFlow
+        NF-->>AG: Return records
+        AG->>C: Store in cache
+    end
+    AG-->>IP: Route NetFlow data
+    IP->>SA: Display records
+```
+
+### Manage Investigations
+
+```mermaid
+sequenceDiagram
+    participant SA as SoC Analyst
+    participant IP as Investigation Portal (UI)
+    participant AG as API Gateway
+    participant IMS as Investigation Management System
+
+    SA->>IP: Initialize investigation
+    IP->>AG: Send create request
+    AG->>IMS: Route to create investigation
+    IMS-->>AG: Return investigation ID
+    AG-->>IP: Respond
+    IP->>SA: Display investigation
+
+    SA->>IP: View investigations
+    IP->>AG: Send list request
+    AG->>IMS: Route to get investigations
+    IMS-->>AG: Return list
+    AG-->>IP: Respond
+    IP->>SA: Display investigations
+
+    SA->>IP: Conclude investigation
+    IP->>AG: Send conclusion
+    AG->>IMS: Route update request
+    IMS-->>AG: Confirm update
+    AG-->>IP: Respond
+    IP->>SA: Display closed status
+```
+
+### Automatic Investigation Processing
+
+```mermaid
+sequenceDiagram
+    participant T as Threat Alerts Topic
+    participant ACI as Automatic Cyber Investigator
+    participant C as Cache
+    participant NF as Network Forensics
+    participant IMS as Investigation Management System
+
+    T->>ACI: Consume threat alert
+    ACI->>C: Check cache
+    alt Cache hit
+        C-->>ACI: Return cached data
+    else Cache miss
+        ACI->>NF: Query NetFlow
+        NF-->>ACI: Return records
+        ACI->>C: Store in cache
+    end
+    ACI->>IMS: Initialize investigation
+    IMS-->>ACI: Return investigation ID
+```
