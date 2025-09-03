@@ -90,40 +90,31 @@ Authorization and administration of users across all systems
 
 ### 2.2 User Workflow
 
-#### Authorzation Flow
+#### Authorization Flow
 
 ```mermaid
 flowchart LR
-    A[SoC Analyst accesses login screen] --> B[Enter credentials]
-    B --> C{Valid credentials?}
-    C -->|No| D[Display error] --> B
-    C -->|Yes| E[User Management authorizes]
-    E --> F[Redirect to Investigation Portal]
-    F --> G[Access dashboard]
-    G --> H[Session over 5 minutes?]
-    H -->|Yes| I[Auto logout] --> A
-    H -->|No| G
+    A[Login] --> B{Valid?}
+    B -->|No| A
+    B -->|Yes| C[Authorize]
+    C --> D[Dashboard]
+    D --> E{Timeout?}
+    E -->|Yes| A
 ```
 
 #### Investigation Management Flow
 
 ```mermaid
 flowchart LR
-    A[View alerts and NetFlow records on portal] --> C[Initialize and view investigations]
-    C --> E[Analyze evidence]
-    E --> F{Investigation complete?}
-    F -->|No| E
-    F -->|Yes| G[Conclude investigation]
-    G --> H{Select conclusion}
-    H --> I[Resolution]
-    H --> J[Insufficient Evidence]
-    H --> K[Other]
-    I --> L[Investigation closed]
-    J --> L
-    K --> L
+    A[View Alerts] --> B[Initialize]
+    B --> C[Analyze]
+    C --> D{Complete?}
+    D -->|No| C
+    D -->|Yes| E[Conclude]
+    E --> F[Closed]
 ```
 
-## 2.3 Availability and Recovery
+### 2.3 Availability and Recovery
 
 | ID | Requirement |
 |----|-----------|
@@ -134,7 +125,7 @@ flowchart LR
 | NFR-AVA-105 | Investigations data older than 7 days shall be archived to a file server |
 | NFR-AVA-106 | Archived investigations data shall be restored from a file server within 45 minutes |
 
-## 2.4 Performance and Capacity
+### 2.4 Performance and Capacity
 
 | ID | Requirement |
 |----|-----------|
@@ -152,7 +143,7 @@ flowchart LR
 | NFR-CAP-402 | For Medium organizations, The Threat Detection Engine shall support up to 1000 devices endpoints |
 | NFR-CAP-403 | For XLarge organizations, The Threat Detection Engine shall support up to 10000 devices endpoints |
 
-## 2.5 Scalability
+### 2.5 Scalability
 
 | ID | Requirement |
 |----|-----------|
@@ -162,7 +153,7 @@ flowchart LR
 | NFR-SCA-201 | The Compute Orchestrating system shall set up a queue for threats alerts |
 | NFR-SCA-202 | The Compute Orchestrating system shall set up a load balancer behind The Forensics API |
 
-## 2.6 Security
+### 2.6 Security
 
 | ID | Requirement |
 |----|-----------|
@@ -170,7 +161,7 @@ flowchart LR
 | NFR-SEC-102 | The User Management system shall apply OAuth 2.0 for authorization tasks |
 | NFR-SEC-103 | The User Management system shall apply Two-Factor authentication for authentication tasks |
 
-## 2.7 Monitoring
+### 2.7 Monitoring
 
 | ID | Requirement |
 |----|-----------|
@@ -184,7 +175,7 @@ flowchart LR
 | NFR-OBS-301 | The Health system shall detect components failures of all components |
 | NFR-OBS-302 | When a system event fulfilling the health issue criteria is detected, the Health system shall alert the System Maintainer of the event |
 
-## 2.8 Usability
+### 2.8 Usability
 
 | ID | Requirement |
 |----|-----------|
@@ -192,7 +183,7 @@ flowchart LR
 | NFR-USA-102 | The User Management system shall provide a graphical user interface supported by all modern browsers |
 | NFR-USA-103 | The Logging system shall provide a graphical user interface supported by all modern browsers |
 
-## 2.9 Maintainability and Configuration
+### 2.9 Maintainability and Configuration
 
 | ID | Requirement |
 |----|-----------|
